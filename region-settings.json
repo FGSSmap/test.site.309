@@ -1,0 +1,27 @@
+{
+  "asia": {
+    "center": "35.0,105.0",
+    "zoom": "4z",
+    "name": "アジア"
+  },
+  "europe": {
+    "center": "54.0,15.0",
+    "zoom": "4z",
+    "name": "ヨーロッパ"
+  },
+  "africa": {
+    "center": "0.0,20.0",
+    "zoom": "3z",
+    "name": "アフリカ"
+  },
+  "oceania": {
+    "center": "-25.0,140.0",
+    "zoom": "4z",
+    "name": "オセアニア"
+  },
+  "north-america": {
+    "center": "45.0,-100.0",
+    "zoom": "3z",
+    "name": "北米"
+  }
+}
