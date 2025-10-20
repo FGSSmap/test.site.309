@@ -276,6 +276,109 @@ function createPlacemarkCard(placemark) {
   return card;
 }
 
+// placemarks-inline.js
+(function(){
+  'use strict';
+
+  const containerId = 'placemarks-list'; // カードを挿入する要素ID
+  const container = document.getElementById(containerId);
+  if(!container) { console.warn('Container not found:', containerId); return; }
+
+  // ----- Method A: ここにデータを直接入力する（編集するのはこの配列だけでOK） -----
+  const placemarksData = [
+    {
+      id: 'pin-001',
+      title: '山口大学（キャンパス）',
+      description: '山口大学 国際総合科学部のキャンパス。学内の見どころや記念スポットです。',
+      image: 'assets/photos/yamaguchi_campus.jpg',
+      lat: 34.000000,
+      lng: 131.000000
+    },
+    {
+      id: 'pin-002',
+      title: 'リール中心部',
+      description: 'フランス・リール市街地。交流や留学で訪れた学生の記録。',
+      image: 'assets/photos/lille_center.jpg',
+      lat: 50.634720,
+      lng: 3.062780
+    }
+    // ここに追加していくだけ
+  ];
+
+  // ----- カード生成関数（既存の HTML/CSS 構造に合わせる） -----
+  function createCard(item) {
+    const name = item.title || '名称不明';
+    const imageUrl = item.image || '';
+    const description = (item.description || '').trim();
+    const hasCoords = typeof item.lat === 'number' && typeof item.lng === 'number';
+
+    const card = document.createElement('article');
+    card.className = 'placemark-card';
+    card.setAttribute('role','article');
+    card.tabIndex = 0;
+    if(item.id) card.dataset.id = item.id;
+
+    card.innerHTML = `
+      <div class="placemark-header">
+        ${imageUrl ? `<img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(name)}" class="placemark-image" loading="lazy" onerror="this.style.display='none';">` : `<div class="placemark-overlay"></div>`}
+        <div class="placemark-overlay">
+          <h3 class="placemark-title">${escapeHtml(name)}</h3>
+        </div>
+      </div>
+      <div class="placemark-content">
+        ${description ? `<p class="placemark-description">${escapeHtml(description)}</p>` : ''}
+        ${hasCoords ? `<div class="coordinates"><i class="fas fa-map-marker-alt"></i><span>${Number(item.lat).toFixed(6)}, ${Number(item.lng).toFixed(6)}</span></div>` : ''}
+        <div class="placemark-actions">
+          ${hasCoords ? `<button class="placemark-btn primary open-map-btn" type="button" data-lat="${item.lat}" data-lng="${item.lng}"><i class="fas fa-search-plus"></i> 地図で確認</button>` : ''}
+          ${hasCoords ? `<a class="placemark-btn secondary" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.lat)},${encodeURIComponent(item.lng)}" target="_blank" rel="noopener noreferrer"><i class="fas fa-external-link-alt"></i> Google Mapsで開く</a>` : ''}
+        </div>
+      </div>
+    `.trim();
+
+    // キーボード操作: Enter / Space で「地図で確認」を実行
+    card.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter' || e.key === ' ') {
+        const btn = card.querySelector('.open-map-btn');
+        if(btn) { btn.click(); e.preventDefault(); }
+      }
+    });
+
+    return card;
+  }
+
+  // ----- 描画とイベント -----
+  function renderCards(items) {
+    container.innerHTML = ''; // 既存をクリア（必要なら変更）
+    items.forEach(item => container.appendChild(createCard(item)));
+  }
+
+  // クリックで埋め込み地図を差し替える（My Maps 連携不要）
+  container.addEventListener('click', (e) => {
+    const btn = e.target.closest && e.target.closest('.open-map-btn');
+    if(!btn) return;
+    const lat = btn.getAttribute('data-lat');
+    const lng = btn.getAttribute('data-lng');
+    if(lat && lng) {
+      const target = document.getElementById('world-map') || document.getElementById('campus-map') || null;
+      if(!target) return;
+      document.querySelectorAll('.map-container').forEach(c => c.classList.remove('active'));
+      target.classList.add('active');
+      target.innerHTML = `<iframe src="https://www.google.com/maps?q=${encodeURIComponent(lat)},${encodeURIComponent(lng)}&z=14&output=embed" loading="lazy" title="地図 - ${escapeHtml(btn.closest('.placemark-card')?.querySelector('.placemark-title')?.textContent||'地点')}"></iframe>`;
+      target.scrollIntoView({ behavior: 'smooth' });
+    }
+  });
+
+  // ----- 初期化 -----
+  renderCards(placemarksData);
+
+  // ----- ユーティリティ -----
+  function escapeHtml(str){
+    if(str === undefined || str === null) return '';
+    return String(str).replace(/[&<>"']/g, (s) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+  }
+
+})();
+
 // ==========================
 // KMLファイル読み込みと表示
 // ==========================
