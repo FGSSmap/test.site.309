@@ -1,1 +1,98 @@
 
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>アジア</name>
+    <Style id="icon-1899-0288D1-normal">
+      <IconStyle>
+        <color>ffd18802</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+        <hotSpot x="32" xunits="pixels" y="64" yunits="insetPixels"/>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+    </Style>
+    <Style id="icon-1899-0288D1-highlight">
+      <IconStyle>
+        <color>ffd18802</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+        <hotSpot x="32" xunits="pixels" y="64" yunits="insetPixels"/>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+    </Style>
+    <StyleMap id="icon-1899-0288D1">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1899-0288D1-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1899-0288D1-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Placemark>
+      <name>大連外国語大学</name>
+      <description>中国語の勉強を頑張った！</description>
+      <styleUrl>#icon-1899-0288D1</styleUrl>
+      <Point>
+        <coordinates>
+          121.311199,38.809494,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>開南大學</name>
+      <description>交換留学でいろんな人と交流した日々</description>
+      <styleUrl>#icon-1899-0288D1</styleUrl>
+      <Point>
+        <coordinates>
+          121.270208,25.0113673,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>セブ島</name>
+      <description>アイランドホッピング</description>
+      <styleUrl>#icon-1899-0288D1</styleUrl>
+      <Point>
+        <coordinates>
+          123.9937969,10.2804375,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>セブ島</name>
+      <description><![CDATA[<img src="https://mymaps.usercontent.google.com/hostedimage/m/*/3AKcrxGSWPLRjQpBnowZ12TUSf_gxcelFwBGILPsNcYSIDQ74OPuPqsOeXDQ5XT_mHk51Fvg4O-4h3P8UyQxFo-MD1m9DDTYaPIUlAN3eaR9yEryqYwxmi7-XsOY08Y7BVVIigYhKzYO6fKbTVEwy1P3V5fvAHVzQWjkJsc7txXL1obC4TRU5cAihuztQAMYm1hH0JBQ7BaAQeWWxFPTgjeVS17ITCUKl7tlnlnH9d5WVBE0_gJGOnuey24cUuvs?authuser=0&fife=s16383" height="200" width="auto" /><br><br>バナナボートに乗った]]></description>
+      <styleUrl>#icon-1899-0288D1</styleUrl>
+      <ExtendedData>
+        <Data name="gx_media_links">
+          <value><![CDATA[https://mymaps.usercontent.google.com/hostedimage/m/*/3AKcrxGSWPLRjQpBnowZ12TUSf_gxcelFwBGILPsNcYSIDQ74OPuPqsOeXDQ5XT_mHk51Fvg4O-4h3P8UyQxFo-MD1m9DDTYaPIUlAN3eaR9yEryqYwxmi7-XsOY08Y7BVVIigYhKzYO6fKbTVEwy1P3V5fvAHVzQWjkJsc7txXL1obC4TRU5cAihuztQAMYm1hH0JBQ7BaAQeWWxFPTgjeVS17ITCUKl7tlnlnH9d5WVBE0_gJGOnuey24cUuvs?authuser=0&fife=s16383]]></value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          124.0171516,10.3060577,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>ソウル市立大学校</name>
+      <description>ウィンタースクール</description>
+      <styleUrl>#icon-1899-0288D1</styleUrl>
+      <Point>
+        <coordinates>
+          127.0587771,37.5838657,0
+        </coordinates>
+      </Point>
+    </Placemark>
+  </Document>
+</kml>
