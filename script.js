@@ -197,7 +197,7 @@ async function loadMapLinks() {
 // プレースマークカード生成
 // ==========================
 
-function createPlacemarkCard(placemark) {
+function createPlacemarkCard(placemark, region = null) {
   const name = placemark.getElementsByTagName("name")[0]?.textContent || "名称不明";
   const descNode = placemark.getElementsByTagName("description")[0];
   const description = descNode ? descNode.textContent || descNode.innerHTML : "";
@@ -221,8 +221,20 @@ function createPlacemarkCard(placemark) {
   card.className = "placemark-card";
   card.setAttribute('role', 'article');
   card.setAttribute('tabindex', '0');
+  
+  // 地域情報がある場合、枠線色を設定
+  if (region && regionSettings[region]) {
+    card.style.borderColor = regionSettings[region].color;
+    card.style.borderWidth = '3px';
+  }
 
   card.innerHTML = `
+    ${region && regionSettings[region] ? 
+      `<div class="region-badge" style="background: ${regionSettings[region].color};">
+        ${regionSettings[region].icon} ${regionSettings[region].name}
+      </div>` : 
+      ''
+    }
     <div class="placemark-header">
       ${imageUrl ? 
         `<img src="${imageUrl}" 
@@ -242,7 +254,7 @@ function createPlacemarkCard(placemark) {
         ''
       }
       ${coordinates ? 
-        `<div class="coordinates">
+        `<div class="coordinates" style="display: none;">
           <i class="fas fa-map-marker-alt"></i>
           <span>${coordinates.lat.toFixed(6)}, ${coordinates.lng.toFixed(6)}</span>
         </div>` : 
@@ -280,7 +292,106 @@ function createPlacemarkCard(placemark) {
 // KMLファイル読み込みと表示
 // ==========================
 
-async function loadAndDisplayPlacemarks(kmlPath) {
+// 世界地図のプレースマーク読み込み（地域別）
+async function loadWorldPlacemarks(selectedRegion = null) {
+  try {
+    showLoading(true);
+    
+    const regions = ['asia', 'europe', 'africa', 'oceania', 'north-america'];
+    
+    // プレースマークコンテナをクリア
+    placemarkContainer.innerHTML = '';
+    
+    if (selectedRegion) {
+      // 特定地域のみ表示
+      await loadRegionSection(selectedRegion);
+    } else {
+      // 全地域を順番に表示
+      for (const region of regions) {
+        await loadRegionSection(region);
+      }
+    }
+    
+    // プレースマークセクションを表示
+    placemarkContainer.classList.add('show');
+    
+    // ズームボタンのイベントリスナーを設定
+    setupZoomButtons();
+    
+    showLoading(false);
+    
+  } catch (error) {
+    handleError(error, '世界プレースマーク読み込み');
+    showLoading(false);
+  }
+}
+
+// 地域セクションの読み込み
+async function loadRegionSection(region) {
+  try {
+    const regionInfo = regionSettings[region];
+    if (!regionInfo) {
+      console.warn(`⚠️ 地域設定が見つかりません: ${region}`);
+      return;
+    }
+    
+    // セクションコンテナを作成
+    const section = document.createElement('div');
+    section.className = 'region-section';
+    section.dataset.region = region;
+    
+    // セクションヘッダーを作成
+    const header = document.createElement('h2');
+    header.className = 'region-header';
+    header.innerHTML = `
+      <span class="region-icon">${regionInfo.icon}</span>
+      <span class="region-name">${regionInfo.name}</span>
+    `;
+    section.appendChild(header);
+    
+    // カードコンテナを作成
+    const cardsContainer = document.createElement('div');
+    cardsContainer.className = 'region-cards';
+    cardsContainer.id = `region-${region}`;
+    section.appendChild(cardsContainer);
+    
+    // プレースマークコンテナに追加
+    placemarkContainer.appendChild(section);
+    
+    // KMLを読み込んでカード生成
+    const kmlPath = `placemark/${region}.kml`;
+    const response = await fetch(kmlPath);
+    if (!response.ok) {
+      console.warn(`⚠️ KMLファイルが見つかりません: ${kmlPath}`);
+      return;
+    }
+    
+    const kmlText = await response.text();
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(kmlText, "text/xml");
+    
+    const documentTag = xmlDoc.getElementsByTagName("Document")[0];
+    if (!documentTag) {
+      console.warn(`⚠️ 有効なKMLファイルではありません: ${kmlPath}`);
+      return;
+    }
+    
+    const placemarks = documentTag.getElementsByTagName("Placemark");
+    
+    // プレースマークカードを生成
+    for (const placemark of placemarks) {
+      const card = createPlacemarkCard(placemark, region);
+      cardsContainer.appendChild(card);
+    }
+    
+    console.log(`✅ ${regionInfo.name}のプレースマーク読み込み完了: ${placemarks.length}件`);
+    
+  } catch (error) {
+    console.error(`❌ ${region}の読み込みエラー:`, error);
+  }
+}
+
+async function loadAndDisplayPlacemarks(kmlPath, region = null, targetContainer = null) {
   try {
     showLoading(true);
     
@@ -534,6 +645,12 @@ function switchDisplay(target) {
     regionSelector.classList.remove('show');
     resetRegionSelection();
   }
+  
+  // ★追加：戻るボタンを非表示にする（都道府県表示以外の場合）
+  const backButtonContainer = document.getElementById("back-button-container");
+  if (backButtonContainer && target !== "pref") {
+    backButtonContainer.style.display = "none";
+  }
 
   // 対象の地図を表示
   const targetMap = document.getElementById(`${target}-map`);
@@ -571,6 +688,10 @@ function switchDisplay(target) {
       if (regionSelector) {
         regionSelector.classList.add('show');
       }
+      // URLパラメータから地域を取得
+      const urlParams = new URLSearchParams(window.location.search);
+      const selectedRegion = urlParams.get('region');
+      loadWorldPlacemarks(selectedRegion);
       break;
       
     case "pref":
@@ -1025,6 +1146,9 @@ regionSelect.addEventListener('change', function() {
     selectedRegion.classList.add('show');
     regionName.textContent = name;
     
+    // 選択された地域のプレースマークを表示
+    loadWorldPlacemarks(selectedValue);
+    
     // 履歴を更新
     updateHistory("world", { region: selectedValue });
   }
@@ -1033,6 +1157,8 @@ regionSelect.addEventListener('change', function() {
 resetRegionBtn.addEventListener('click', function() {
   resetRegionSelection();
   worldMap.innerHTML = getIframeHTML(worldMapUrl, "世界地図");
+  // 全地域のプレースマークを表示
+  loadWorldPlacemarks(null);
   updateHistory("world");
 });
 
@@ -1088,9 +1214,6 @@ function updateHistory(view, params = {}) {
   
   const newUrl = `?${url.toString()}`;
   history.pushState({ view, ...params }, '', newUrl);
-
-  // ← ここでボタンの表示を更新
-  updateBackButton(view);
 }
 
 function handlePopState(event) {
@@ -1123,19 +1246,7 @@ function handlePopState(event) {
       }
       break;
   }
-
-  // ← 履歴から戻ったときもボタン状態を更新
-  updateBackButton(state.view);
 }
-
-// ==========================
-// 戻るボタン制御
-// ==========================
-function updateBackButton(view) {
-  const backButtonContainer = document.getElementById('back-button-container');
-  backButtonContainer.style.display = (view === 'japan') ? 'block' : 'none';
-}
-
 
 
 
@@ -1326,372 +1437,3 @@ document.addEventListener("DOMContentLoaded", initialize);
 // グローバルスコープでの関数公開
 window.loadJapanMap = loadJapanMap;
 window.loadJapanMapDirectly = loadJapanMapDirectly;
-
-// script.js (complete)
-// --- DOM参照 ---
-const campusButton = document.getElementById('campus-button');
-const japanButton = document.getElementById('japan-button');
-const worldButton = document.getElementById('world-button');
-
-const campusMap = document.getElementById('campus-map');
-const japanMap = document.getElementById('japan-map');
-const prefectureMap = document.getElementById('prefecture-map');
-const worldMap = document.getElementById('world-map');
-
-const regionSelector = document.getElementById('region-selector');
-const regionSelect = document.getElementById('region-select');
-const regionName = document.getElementById('region-name');
-const resetRegion = document.getElementById('reset-region');
-
-const placemarkContainer = document.getElementById('placemarks-list');
-const loadingEl = document.getElementById('loading');
-const modalOverlay = document.getElementById('modal-overlay');
-const modalClose = document.getElementById('modal-close');
-const modalBody = document.getElementById('modal-body');
-
-if (!placemarkContainer) {
-  console.warn('placemarks-list が見つかりません。HTMLのidを確認してください。');
-}
-
-// --- キャッシュ ---
-let kmlCache = {
-  campus: null,
-  japan: null,
-  world: null,
-  regions: {} // 'asia','europe','africa','oceania','north-america'
-};
-
-// --- ファイルパス（placemark フォルダ内の .kml を参照） ---
-const KML_PATHS = {
-  campus: 'placemark/campus.kml',
-  japan: 'placemark/japan.kml',         // 存在する場合
-  worldIndex: 'placemark/world-index.kml' // 任意: world 全体のインデックスがあれば
-};
-
-const REGION_FILES = {
-  'asia': 'placemark/asia.kml',
-  'europe': 'placemark/europe.kml',
-  'africa': 'placemark/africa.kml',
-  'oceania': 'placemark/oceania.kml',
-  'north-america': 'placemark/north-america.kml'
-};
-
-// --- ユーティリティ ---
-function showLoading(show) {
-  if (!loadingEl) return;
-  loadingEl.style.display = show ? 'flex' : 'none';
-  loadingEl.setAttribute('aria-hidden', show ? 'false' : 'true');
-}
-
-function handleError(err, context = '') {
-  console.error(context, err);
-}
-
-function generateMapsUrl(lat, lng) {
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(lat + ',' + lng)}`;
-}
-
-function parseCoordinates(coordsString) {
-  if (!coordsString) return null;
-  // KML: "lon,lat[,alt]"。複数座標なら先頭を使用
-  const first = coordsString.trim().split(/\s+/)[0];
-  const parts = first.split(',').map(Number);
-  if (parts.length < 2 || !isFinite(parts[0]) || !isFinite(parts[1])) return null;
-  const lon = parts[0];
-  const lat = parts[1];
-  return { lat, lng: lon };
-}
-
-function extractImageFromDescription(description) {
-  if (!description) return null;
-  const imgMatch = description.match(/<img[^>]+src=["']([^"']+)["']/i);
-  if (imgMatch) return imgMatch[1];
-  const ogMatch = description.match(/og:image["']?\s*content=["']([^"']+)["']/i);
-  if (ogMatch) return ogMatch[1];
-  return null;
-}
-
-function escapeHtml(str) {
-  if (!str) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-}
-function escapeHtmlAttr(str) {
-  if (!str) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/"/g, '&quot;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-}
-
-// --- プレースマークカード生成 ---
-function createPlacemarkCard(placemark) {
-  const name = placemark.getElementsByTagName("name")[0]?.textContent || "名称不明";
-  const descNode = placemark.getElementsByTagName("description")[0];
-  let description = '';
-  if (descNode) description = descNode.textContent || descNode.innerHTML || '';
-
-  const coordsNode = placemark.getElementsByTagName("coordinates")[0];
-  const coordsString = coordsNode ? coordsNode.textContent.trim() : '';
-
-  const imageUrl = extractImageFromDescription(description);
-  const coordinates = parseCoordinates(coordsString);
-
-  const cleanDescription = description
-    .replace(/<img[^>]*>/gi, '')
-    .replace(/<[^>]*>/g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
-
-  const card = document.createElement("div");
-  card.className = "placemark-card";
-  card.setAttribute('role', 'article');
-  card.setAttribute('tabindex', '0');
-
-  card.innerHTML = `
-    <div class="placemark-header">
-      ${imageUrl ? 
-        `<img src="${imageUrl}" 
-             alt="${escapeHtmlAttr(name)}" 
-             class="placemark-image"
-             loading="lazy"
-             onerror="this.style.display='none';">` : 
-        `<div class="placemark-overlay no-image" aria-hidden="true"></div>`
-      }
-      <div class="placemark-overlay">
-        <h3 class="placemark-title">${escapeHtml(name)}</h3>
-      </div>
-    </div>
-    <div class="placemark-content">
-      ${cleanDescription ? 
-        `<p class="placemark-description">${escapeHtml(cleanDescription)}</p>` : 
-        ''
-      }
-      ${coordinates ? 
-        `<div class="coordinates" aria-hidden="false">
-          <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
-          <span>${coordinates.lat.toFixed(6)}, ${coordinates.lng.toFixed(6)}</span>
-        </div>` : 
-        ''
-      }
-      <div class="placemark-actions">
-        ${coordinates ? 
-          `<button class="placemark-btn primary zoom-btn" 
-                   data-lat="${coordinates.lat}" 
-                   data-lng="${coordinates.lng}"
-                   data-name="${escapeHtmlAttr(name)}"
-                   aria-label="地図で ${escapeHtmlAttr(name)} を確認">
-            <i class="fas fa-search-plus" aria-hidden="true"></i>
-            地図で確認
-          </button>` : 
-          ''
-        }
-        ${coordinates ? 
-          `<a href="${generateMapsUrl(coordinates.lat, coordinates.lng)}" 
-             target="_blank" 
-             rel="noopener noreferrer"
-             class="placemark-btn secondary"
-             aria-label="Google Mapsで ${escapeHtmlAttr(name)} を開く">
-            <i class="fas fa-external-link-alt" aria-hidden="true"></i>
-            Google Mapsで開く
-          </a>` : 
-          ''
-        }
-      </div>
-    </div>
-  `;
-  return card;
-}
-
-// --- KML取得 ---
-async function fetchKmlText(path) {
-  const res = await fetch(path);
-  if (!res.ok) throw new Error(`ファイル取得に失敗しました: ${path} (status ${res.status})`);
-  return await res.text();
-}
-
-// --- 読み込みロジック ---
-async function loadKml(kind) {
-  // kind: 'campus' | 'japan' | 'world' | 'region:asia'
-  if (kind.startsWith('region:')) {
-    const regionKey = kind.split(':')[1];
-    if (kmlCache.regions[regionKey]) return kmlCache.regions[regionKey];
-    const path = REGION_FILES[regionKey];
-    if (!path) throw new Error(`未定義の地域ファイル: ${regionKey}`);
-    const text = await fetchKmlText(path);
-    const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(text, "application/xml");
-    kmlCache.regions[regionKey] = xmlDoc;
-    return xmlDoc;
-  }
-
-  if (kmlCache[kind]) return kmlCache[kind];
-  const path = KML_PATHS[kind];
-  if (!path) throw new Error(`未定義のKMLパス: ${kind}`);
-  const text = await fetchKmlText(path);
-  const parser = new DOMParser();
-  const xmlDoc = parser.parseFromString(text, "application/xml");
-  kmlCache[kind] = xmlDoc;
-  return xmlDoc;
-}
-
-function clearPlacemarksUI() {
-  placemarkContainer.innerHTML = '<div class="placemarks-grid"></div>';
-}
-
-// --- 表示処理 ---
-async function loadAndDisplayPlacemarksForKind(kind) {
-  try {
-    showLoading(true);
-    clearPlacemarksUI();
-
-    const xmlDoc = await loadKml(kind);
-
-    let placemarkNodes = Array.from(xmlDoc.getElementsByTagName('Placemark'));
-    if (placemarkNodes.length === 0) {
-      placemarkNodes = Array.from(xmlDoc.getElementsByTagName('*')).filter(el => el.localName === 'Placemark');
-    }
-
-    const grid = placemarkContainer.querySelector('.placemarks-grid');
-    if (!placemarkNodes.length) {
-      grid.innerHTML = `<div style="padding:1rem;color:var(--text-secondary);">プレースマークが見つかりませんでした。</div>`;
-    } else {
-      for (const pm of placemarkNodes) {
-        const card = createPlacemarkCard(pm);
-        grid.appendChild(card);
-      }
-    }
-
-    placemarkContainer.classList.add('show');
-    setupZoomButtons();
-  } catch (err) {
-    handleError(err, `KML読み込み (${kind})`);
-    placemarkContainer.innerHTML = `
-      <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
-        <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 1rem;"></i>
-        <p>プレースマークの読み込みに失敗しました。</p>
-      </div>
-    `;
-    placemarkContainer.classList.add('show');
-  } finally {
-    showLoading(false);
-  }
-}
-
-// --- ズームボタン ---
-function setupZoomButtons() {
-  const zoomButtons = placemarkContainer.querySelectorAll('.zoom-btn');
-  zoomButtons.forEach(btn => {
-    btn.removeEventListener('click', zoomBtnHandler);
-    btn.addEventListener('click', zoomBtnHandler);
-  });
-}
-function zoomBtnHandler(e) {
-  const btn = e.currentTarget;
-  const lat = parseFloat(btn.dataset.lat);
-  const lng = parseFloat(btn.dataset.lng);
-  const name = btn.dataset.name || '';
-  openPlacemarkModal({ name, lat, lng });
-}
-
-// --- モーダル操作 ---
-function openPlacemarkModal({ name, lat, lng }) {
-  if (!modalOverlay || !modalBody) return;
-  modalBody.innerHTML = `
-    <h3 style="margin-top:0;">${escapeHtml(name || '場所')}</h3>
-    ${isFinite(lat) && isFinite(lng) ? `<p>座標: ${lat.toFixed(6)}, ${lng.toFixed(6)}</p>` : ''}
-    ${isFinite(lat) && isFinite(lng) ? `<p><a href="${generateMapsUrl(lat, lng)}" target="_blank" rel="noopener noreferrer">Google Mapsで開く</a></p>` : ''}
-  `;
-  modalOverlay.style.display = 'block';
-  modalClose?.focus();
-}
-
-document.addEventListener('click', (e) => {
-  if (!modalOverlay) return;
-  if (e.target === modalOverlay || e.target.id === 'modal-close') {
-    modalOverlay.style.display = 'none';
-  }
-});
-document.addEventListener('keydown', (e) => {
-  if (!modalOverlay) return;
-  if (e.key === 'Escape') modalOverlay.style.display = 'none';
-});
-
-// --- 地図切替ロジック ---
-function setActiveButton(btn) {
-  [campusButton, japanButton, worldButton].forEach(b => b?.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-}
-
-function hideAllMaps() {
-  [campusMap, japanMap, prefectureMap, worldMap].forEach(el => el?.classList.remove('active'));
-}
-
-function showMapByKind(kind) {
-  hideAllMaps();
-  if (kind === 'campus') {
-    campusMap.classList.add('active');
-    regionSelector.style.display = 'none';
-  } else if (kind === 'japan') {
-    japanMap.classList.add('active');
-    regionSelector.style.display = 'none';
-  } else if (kind === 'world') {
-    worldMap.classList.add('active');
-    regionSelector.style.display = 'flex';
-  }
-}
-
-// --- ボタンイベント ---
-campusButton?.addEventListener('click', async () => {
-  setActiveButton(campusButton);
-  showMapByKind('campus');
-  await loadAndDisplayPlacemarksForKind('campus');
-});
-
-japanButton?.addEventListener('click', async () => {
-  setActiveButton(japanButton);
-  showMapByKind('japan');
-  await loadAndDisplayPlacemarksForKind('japan');
-});
-
-worldButton?.addEventListener('click', async () => {
-  setActiveButton(worldButton);
-  showMapByKind('world');
-  clearPlacemarksUI();
-  placemarkContainer.innerHTML = '<div style="padding:1rem;color:var(--text-secondary);">地域を選択してください。</div>';
-});
-
-// --- 地域セレクタ ---
-regionSelect?.addEventListener('change', async () => {
-  const val = regionSelect.value;
-  if (!val) {
-    regionName.textContent = '';
-    resetRegion.style.display = 'none';
-    clearPlacemarksUI();
-    return;
-  }
-  regionName.textContent = regionSelect.options[regionSelect.selectedIndex].text;
-  resetRegion.style.display = 'inline-flex';
-  await loadAndDisplayPlacemarksForKind(`region:${val}`);
-});
-
-resetRegion?.addEventListener('click', () => {
-  regionSelect.value = '';
-  regionName.textContent = '';
-  resetRegion.style.display = 'none';
-  clearPlacemarksUI();
-});
-
-// --- 初期表示 ---
-(async function init() {
-  setActiveButton(campusButton);
-  showMapByKind('campus');
-  try {
-    await loadAndDisplayPlacemarksForKind('campus');
-  } catch (e) {
-    handleError(e, '初期ロード');
-  }
-})();
