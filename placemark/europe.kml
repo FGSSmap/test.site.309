@@ -1,1 +1,93 @@
 
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>ヨーロッパ</name>
+    <Style id="icon-1899-0288D1-normal">
+      <IconStyle>
+        <color>ffd18802</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+        <hotSpot x="32" xunits="pixels" y="64" yunits="insetPixels"/>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+    </Style>
+    <Style id="icon-1899-0288D1-highlight">
+      <IconStyle>
+        <color>ffd18802</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+        <hotSpot x="32" xunits="pixels" y="64" yunits="insetPixels"/>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+    </Style>
+    <StyleMap id="icon-1899-0288D1">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1899-0288D1-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1899-0288D1-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Placemark>
+      <name>カトリック・ド・リール大学</name>
+      <description><![CDATA[<img src="https://mymaps.usercontent.google.com/hostedimage/m/*/3AKcrxGRYLKizW1SH1ZpVOqOB1eh0OwxxfoMWEFbTMlq_w79T9jmYWx05SlA14LDHm3WMqGggkbrrkfjPf5kWyD3iT7-swCjj5TWuYY1uHr6Xh8WdKxajiG8tk2wCWVMC8TSQl8NJk2CPe3WpnalitYlTYGzdKl_Ik7kduF9iaHTLANdWoR4pDD5HgTd4UFbm6OzlbXRLAF-ApH9ABvsnl18FGcBLgJ7phqpgxVyVUZlVvXZsteCVAvZ5oAGWQXc?authuser=0&fife=s16383" height="200" width="auto" /><br><br>留学先！]]></description>
+      <styleUrl>#icon-1899-0288D1</styleUrl>
+      <ExtendedData>
+        <Data name="gx_media_links">
+          <value><![CDATA[https://mymaps.usercontent.google.com/hostedimage/m/*/3AKcrxGRYLKizW1SH1ZpVOqOB1eh0OwxxfoMWEFbTMlq_w79T9jmYWx05SlA14LDHm3WMqGggkbrrkfjPf5kWyD3iT7-swCjj5TWuYY1uHr6Xh8WdKxajiG8tk2wCWVMC8TSQl8NJk2CPe3WpnalitYlTYGzdKl_Ik7kduF9iaHTLANdWoR4pDD5HgTd4UFbm6OzlbXRLAF-ApH9ABvsnl18FGcBLgJ7phqpgxVyVUZlVvXZsteCVAvZ5oAGWQXc?authuser=0&fife=s16383]]></value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          3.0464865,50.6331207,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>Ingleton waterfall</name>
+      <description><![CDATA[<img src="https://mymaps.usercontent.google.com/hostedimage/m/*/3AKcrxGTfjZo4fxmW_3t3wwuuE7nL7XUhmnWG996hkeRdcUdL2kn8m9ZTIvgBJrUFxwnR0XU94loBFhvJ8h5tXoch7R8CteSu0ONql3_oatF9QbL9wI3pGbXLmCQmcwjwyZHkK47C8juIrbL0twfneE6-2VuM5oTGZNayFPGK9EKCimfS346hzF2zOjmwOyMTSUrzmvECSXM7J9qRyxmUqWXChCKG1UugHpmv4zs1DaNi5BmocYIbHc9GeVG6HP0?authuser=0&fife=s16383" height="200" width="auto" /><br><br>壮大な自然の中でめっちゃ盛れた写真を撮れた。<br><br><img src="https://mymaps.usercontent.google.com/hostedimage/m/*/3AKcrxGR_tQHwF0xbI0c_ukB9zHkuVpTiG5bICgaAbOdaoIhUq9ufd_HxlNkWcn2rPO4jNmhyCthLxbTx5meyFbkPkAVDj3scRkqpiEvQneaRifySl_22nt5A7ZdipBl8yOd3YLZSkx3_gWXfnBX1WaJ5Mm77Y4p2s25CvEfd7P-LNJG91HDo4jrGhANxAX-JAgFbvFdgF1J_AG0pQ-hC6q8INcl7v3ymclh5vaH8vMWkBWEPq00dLqDD2e0HJmk?authuser=0&fife=s16383" height="200" width="auto" />]]></description>
+      <styleUrl>#icon-1899-0288D1</styleUrl>
+      <ExtendedData>
+        <Data name="gx_media_links">
+          <value><![CDATA[https://mymaps.usercontent.google.com/hostedimage/m/*/3AKcrxGTfjZo4fxmW_3t3wwuuE7nL7XUhmnWG996hkeRdcUdL2kn8m9ZTIvgBJrUFxwnR0XU94loBFhvJ8h5tXoch7R8CteSu0ONql3_oatF9QbL9wI3pGbXLmCQmcwjwyZHkK47C8juIrbL0twfneE6-2VuM5oTGZNayFPGK9EKCimfS346hzF2zOjmwOyMTSUrzmvECSXM7J9qRyxmUqWXChCKG1UugHpmv4zs1DaNi5BmocYIbHc9GeVG6HP0?authuser=0&fife=s16383 https://mymaps.usercontent.google.com/hostedimage/m/*/3AKcrxGR_tQHwF0xbI0c_ukB9zHkuVpTiG5bICgaAbOdaoIhUq9ufd_HxlNkWcn2rPO4jNmhyCthLxbTx5meyFbkPkAVDj3scRkqpiEvQneaRifySl_22nt5A7ZdipBl8yOd3YLZSkx3_gWXfnBX1WaJ5Mm77Y4p2s25CvEfd7P-LNJG91HDo4jrGhANxAX-JAgFbvFdgF1J_AG0pQ-hC6q8INcl7v3ymclh5vaH8vMWkBWEPq00dLqDD2e0HJmk?authuser=0&fife=s16383]]></value>
+        </Data>
+      </ExtendedData>
+      <Point>
+        <coordinates>
+          -2.4731091,54.153471,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>デンマーク・オーデンセ</name>
+      <description>アンデルセン童話の世界が垣間見える小さな街で、楽しくて沢山の学びを得た時間を過ごすことが出来ました。</description>
+      <styleUrl>#icon-1899-0288D1</styleUrl>
+      <Point>
+        <coordinates>
+          10.3834039,55.394761,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>リール</name>
+      <description>留学</description>
+      <styleUrl>#icon-1899-0288D1</styleUrl>
+      <Point>
+        <coordinates>
+          3.06278,50.63472,0
+        </coordinates>
+      </Point>
+    </Placemark>
+  </Document>
+</kml>
