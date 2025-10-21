@@ -1326,3 +1326,373 @@ document.addEventListener("DOMContentLoaded", initialize);
 // グローバルスコープでの関数公開
 window.loadJapanMap = loadJapanMap;
 window.loadJapanMapDirectly = loadJapanMapDirectly;
+
+// script.js (complete)
+// --- DOM参照 ---
+const campusButton = document.getElementById('campus-button');
+const japanButton = document.getElementById('japan-button');
+const worldButton = document.getElementById('world-button');
+
+const campusMap = document.getElementById('campus-map');
+const japanMap = document.getElementById('japan-map');
+const prefectureMap = document.getElementById('prefecture-map');
+const worldMap = document.getElementById('world-map');
+
+const regionSelector = document.getElementById('region-selector');
+const regionSelect = document.getElementById('region-select');
+const regionName = document.getElementById('region-name');
+const resetRegion = document.getElementById('reset-region');
+
+const placemarkContainer = document.getElementById('placemarks-list');
+const loadingEl = document.getElementById('loading');
+const modalOverlay = document.getElementById('modal-overlay');
+const modalClose = document.getElementById('modal-close');
+const modalBody = document.getElementById('modal-body');
+
+if (!placemarkContainer) {
+  console.warn('placemarks-list が見つかりません。HTMLのidを確認してください。');
+}
+
+// --- キャッシュ ---
+let kmlCache = {
+  campus: null,
+  japan: null,
+  world: null,
+  regions: {} // 'asia','europe','africa','oceania','north-america'
+};
+
+// --- ファイルパス（ここを実際の配置に合わせて編集してください） ---
+const KML_PATHS = {
+  campus: 'data/campus.kml',
+  japan: 'data/japan.kml',
+  worldIndex: 'data/world-index.kml' // 任意: 世界全体のインデックスがあれば
+};
+
+const REGION_FILES = {
+  'asia': 'data/asia.kml',
+  'europe': 'data/europe.kml',
+  'africa': 'data/africa.kml',
+  'oceania': 'data/oceania.kml',
+  'north-america': 'data/north-america.kml'
+};
+
+// --- ユーティリティ ---
+function showLoading(show) {
+  if (!loadingEl) return;
+  loadingEl.style.display = show ? 'flex' : 'none';
+  loadingEl.setAttribute('aria-hidden', show ? 'false' : 'true');
+}
+
+function handleError(err, context = '') {
+  console.error(context, err);
+}
+
+function generateMapsUrl(lat, lng) {
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(lat + ',' + lng)}`;
+}
+
+function parseCoordinates(coordsString) {
+  if (!coordsString) return null;
+  // KML: "lon,lat[,alt]"。複数座標なら先頭を使用
+  const first = coordsString.trim().split(/\s+/)[0];
+  const parts = first.split(',').map(Number);
+  if (parts.length < 2 || !isFinite(parts[0]) || !isFinite(parts[1])) return null;
+  const lon = parts[0];
+  const lat = parts[1];
+  return { lat, lng: lon };
+}
+
+function extractImageFromDescription(description) {
+  if (!description) return null;
+  const imgMatch = description.match(/<img[^>]+src=["']([^"']+)["']/i);
+  if (imgMatch) return imgMatch[1];
+  const ogMatch = description.match(/og:image["']?\s*content=["']([^"']+)["']/i);
+  if (ogMatch) return ogMatch[1];
+  return null;
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+function escapeHtmlAttr(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+// --- プレースマークカード生成 ---
+function createPlacemarkCard(placemark) {
+  const name = placemark.getElementsByTagName("name")[0]?.textContent || "名称不明";
+  const descNode = placemark.getElementsByTagName("description")[0];
+  let description = '';
+  if (descNode) description = descNode.textContent || descNode.innerHTML || '';
+
+  const coordsNode = placemark.getElementsByTagName("coordinates")[0];
+  const coordsString = coordsNode ? coordsNode.textContent.trim() : '';
+
+  const imageUrl = extractImageFromDescription(description);
+  const coordinates = parseCoordinates(coordsString);
+
+  const cleanDescription = description
+    .replace(/<img[^>]*>/gi, '')
+    .replace(/<[^>]*>/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  const card = document.createElement("div");
+  card.className = "placemark-card";
+  card.setAttribute('role', 'article');
+  card.setAttribute('tabindex', '0');
+
+  card.innerHTML = `
+    <div class="placemark-header">
+      ${imageUrl ? 
+        `<img src="${imageUrl}" 
+             alt="${escapeHtmlAttr(name)}" 
+             class="placemark-image"
+             loading="lazy"
+             onerror="this.style.display='none';">` : 
+        `<div class="placemark-overlay no-image" aria-hidden="true"></div>`
+      }
+      <div class="placemark-overlay">
+        <h3 class="placemark-title">${escapeHtml(name)}</h3>
+      </div>
+    </div>
+    <div class="placemark-content">
+      ${cleanDescription ? 
+        `<p class="placemark-description">${escapeHtml(cleanDescription)}</p>` : 
+        ''
+      }
+      ${coordinates ? 
+        `<div class="coordinates" aria-hidden="false">
+          <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+          <span>${coordinates.lat.toFixed(6)}, ${coordinates.lng.toFixed(6)}</span>
+        </div>` : 
+        ''
+      }
+      <div class="placemark-actions">
+        ${coordinates ? 
+          `<button class="placemark-btn primary zoom-btn" 
+                   data-lat="${coordinates.lat}" 
+                   data-lng="${coordinates.lng}"
+                   data-name="${escapeHtmlAttr(name)}"
+                   aria-label="地図で ${escapeHtmlAttr(name)} を確認">
+            <i class="fas fa-search-plus" aria-hidden="true"></i>
+            地図で確認
+          </button>` : 
+          ''
+        }
+        ${coordinates ? 
+          `<a href="${generateMapsUrl(coordinates.lat, coordinates.lng)}" 
+             target="_blank" 
+             rel="noopener noreferrer"
+             class="placemark-btn secondary"
+             aria-label="Google Mapsで ${escapeHtmlAttr(name)} を開く">
+            <i class="fas fa-external-link-alt" aria-hidden="true"></i>
+            Google Mapsで開く
+          </a>` : 
+          ''
+        }
+      </div>
+    </div>
+  `;
+  return card;
+}
+
+// --- KML取得 ---
+async function fetchKmlText(path) {
+  const res = await fetch(path);
+  if (!res.ok) throw new Error(`ファイル取得に失敗しました: ${path} (status ${res.status})`);
+  return await res.text();
+}
+
+// --- 読み込みロジック ---
+async function loadKml(kind) {
+  // kind: 'campus' | 'japan' | 'world' | 'region:asia'
+  if (kind.startsWith('region:')) {
+    const regionKey = kind.split(':')[1];
+    if (kmlCache.regions[regionKey]) return kmlCache.regions[regionKey];
+    const path = REGION_FILES[regionKey];
+    if (!path) throw new Error(`未定義の地域ファイル: ${regionKey}`);
+    const text = await fetchKmlText(path);
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(text, "application/xml");
+    kmlCache.regions[regionKey] = xmlDoc;
+    return xmlDoc;
+  }
+
+  if (kmlCache[kind]) return kmlCache[kind];
+  const path = KML_PATHS[kind];
+  if (!path) throw new Error(`未定義のKMLパス: ${kind}`);
+  const text = await fetchKmlText(path);
+  const parser = new DOMParser();
+  const xmlDoc = parser.parseFromString(text, "application/xml");
+  kmlCache[kind] = xmlDoc;
+  return xmlDoc;
+}
+
+function clearPlacemarksUI() {
+  placemarkContainer.innerHTML = '<div class="placemarks-grid"></div>';
+}
+
+// --- 表示処理 ---
+async function loadAndDisplayPlacemarksForKind(kind) {
+  try {
+    showLoading(true);
+    clearPlacemarksUI();
+
+    const xmlDoc = await loadKml(kind);
+
+    let placemarkNodes = Array.from(xmlDoc.getElementsByTagName('Placemark'));
+    if (placemarkNodes.length === 0) {
+      placemarkNodes = Array.from(xmlDoc.getElementsByTagName('*')).filter(el => el.localName === 'Placemark');
+    }
+
+    const grid = placemarkContainer.querySelector('.placemarks-grid');
+    if (!placemarkNodes.length) {
+      grid.innerHTML = `<div style="padding:1rem;color:var(--text-secondary);">プレースマークが見つかりませんでした。</div>`;
+    } else {
+      for (const pm of placemarkNodes) {
+        const card = createPlacemarkCard(pm);
+        grid.appendChild(card);
+      }
+    }
+
+    placemarkContainer.classList.add('show');
+    setupZoomButtons();
+  } catch (err) {
+    handleError(err, `KML読み込み (${kind})`);
+    placemarkContainer.innerHTML = `
+      <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+        <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+        <p>プレースマークの読み込みに失敗しました。</p>
+      </div>
+    `;
+    placemarkContainer.classList.add('show');
+  } finally {
+    showLoading(false);
+  }
+}
+
+// --- ズームボタン ---
+function setupZoomButtons() {
+  const zoomButtons = placemarkContainer.querySelectorAll('.zoom-btn');
+  zoomButtons.forEach(btn => {
+    btn.removeEventListener('click', zoomBtnHandler);
+    btn.addEventListener('click', zoomBtnHandler);
+  });
+}
+function zoomBtnHandler(e) {
+  const btn = e.currentTarget;
+  const lat = parseFloat(btn.dataset.lat);
+  const lng = parseFloat(btn.dataset.lng);
+  const name = btn.dataset.name || '';
+  openPlacemarkModal({ name, lat, lng });
+}
+
+// --- モーダル操作 ---
+function openPlacemarkModal({ name, lat, lng }) {
+  if (!modalOverlay || !modalBody) return;
+  modalBody.innerHTML = `
+    <h3 style="margin-top:0;">${escapeHtml(name || '場所')}</h3>
+    ${isFinite(lat) && isFinite(lng) ? `<p>座標: ${lat.toFixed(6)}, ${lng.toFixed(6)}</p>` : ''}
+    ${isFinite(lat) && isFinite(lng) ? `<p><a href="${generateMapsUrl(lat, lng)}" target="_blank" rel="noopener noreferrer">Google Mapsで開く</a></p>` : ''}
+  `;
+  modalOverlay.style.display = 'block';
+  modalClose?.focus();
+}
+
+document.addEventListener('click', (e) => {
+  if (!modalOverlay) return;
+  if (e.target === modalOverlay || e.target.id === 'modal-close') {
+    modalOverlay.style.display = 'none';
+  }
+});
+document.addEventListener('keydown', (e) => {
+  if (!modalOverlay) return;
+  if (e.key === 'Escape') modalOverlay.style.display = 'none';
+});
+
+// --- 地図切替ロジック ---
+function setActiveButton(btn) {
+  [campusButton, japanButton, worldButton].forEach(b => b?.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+}
+
+function hideAllMaps() {
+  [campusMap, japanMap, prefectureMap, worldMap].forEach(el => el?.classList.remove('active'));
+}
+
+function showMapByKind(kind) {
+  hideAllMaps();
+  if (kind === 'campus') {
+    campusMap.classList.add('active');
+    regionSelector.style.display = 'none';
+  } else if (kind === 'japan') {
+    japanMap.classList.add('active');
+    regionSelector.style.display = 'none';
+  } else if (kind === 'world') {
+    worldMap.classList.add('active');
+    regionSelector.style.display = 'flex';
+  }
+}
+
+// --- ボタンイベント ---
+campusButton?.addEventListener('click', async () => {
+  setActiveButton(campusButton);
+  showMapByKind('campus');
+  await loadAndDisplayPlacemarksForKind('campus');
+});
+
+japanButton?.addEventListener('click', async () => {
+  setActiveButton(japanButton);
+  showMapByKind('japan');
+  await loadAndDisplayPlacemarksForKind('japan');
+});
+
+worldButton?.addEventListener('click', async () => {
+  setActiveButton(worldButton);
+  showMapByKind('world');
+  // world 初回は地域選択を促す
+  clearPlacemarksUI();
+  placemarkContainer.innerHTML = '<div style="padding:1rem;color:var(--text-secondary);">地域を選択してください。</div>';
+});
+
+// --- 地域セレクタ ---
+regionSelect?.addEventListener('change', async () => {
+  const val = regionSelect.value;
+  if (!val) {
+    regionName.textContent = '';
+    resetRegion.style.display = 'none';
+    clearPlacemarksUI();
+    return;
+  }
+  regionName.textContent = regionSelect.options[regionSelect.selectedIndex].text;
+  resetRegion.style.display = 'inline-flex';
+  await loadAndDisplayPlacemarksForKind(`region:${val}`);
+});
+
+resetRegion?.addEventListener('click', () => {
+  regionSelect.value = '';
+  regionName.textContent = '';
+  resetRegion.style.display = 'none';
+  clearPlacemarksUI();
+});
+
+// --- 初期表示 ---
+(async function init() {
+  setActiveButton(campusButton);
+  showMapByKind('campus');
+  try {
+    await loadAndDisplayPlacemarksForKind('campus');
+  } catch (e) {
+    handleError(e, '初期ロード');
+  }
+})();
