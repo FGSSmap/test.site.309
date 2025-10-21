@@ -385,6 +385,59 @@ body {
   margin-top: 1rem;
 }
 
+/* ========================================
+   地域セクション
+   ======================================== */
+.region-section {
+  margin-bottom: 3rem;
+}
+
+.region-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 3px solid var(--primary-color);
+}
+
+.region-icon {
+  font-size: 1.8rem;
+}
+
+.region-name {
+  color: var(--text-primary);
+}
+
+.region-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+/* ========================================
+   地域バッジ
+   ======================================== */
+.region-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 0.4rem 0.9rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: white;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
 /* Enhanced Placemark Cards */
 .placemark-card {
   background: rgba(255, 255, 255, 0.95);
