@@ -2,26 +2,36 @@
   "asia": {
     "center": "35.0,105.0",
     "zoom": "4z",
-    "name": "アジア"
+    "name": "アジア",
+    "icon": "🌏",
+    "color": "#19b78f"
   },
   "europe": {
     "center": "54.0,15.0",
     "zoom": "4z",
-    "name": "ヨーロッパ"
+    "name": "ヨーロッパ",
+    "icon": "🌍",
+    "color": "#bbdbf3"
   },
   "africa": {
     "center": "0.0,20.0",
     "zoom": "3z",
-    "name": "アフリカ"
+    "name": "アフリカ",
+    "icon": "🌍",
+    "color": "#fff799"
   },
   "oceania": {
     "center": "-25.0,140.0",
     "zoom": "4z",
-    "name": "オセアニア"
+    "name": "オセアニア",
+    "icon": "🌏",
+    "color": "#d6adff"
   },
   "north-america": {
     "center": "45.0,-100.0",
     "zoom": "3z",
-    "name": "北米"
+    "name": "北米",
+    "icon": "🌎",
+    "color": "#ffb6c1"
   }
 }
