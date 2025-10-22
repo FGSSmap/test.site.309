@@ -146,26 +146,87 @@
       </Point>
     </Placemark>
     <Placemark>
-      <name>新山口駅</name>
-      <styleUrl>#icon-1899-E65100-nodesc</styleUrl>
-      <Point>
-        <coordinates>
-          131.3963647,34.0936917,0
-        </coordinates>
-      </Point>
-    </Placemark>
-    <Placemark>
       <name>村井P研究室</name>
-      <description><![CDATA[<img src="https://mymaps.usercontent.google.com/hostedimage/m/*/3ADbDBKsOql_4u1-ZDsroBQNo0lsHv6QDSewcYzEW6n7yLGne5zAaGwe-XQ-AOAficsPUYj4Rj9hFtODMGeMj78BK8cF_wHHTDPdC46xbPTQVmJiF_3fmYDW5CbKfUI0bVOfgy1wzH-jRS2JD8JsRHX-UwucM7fnrFYR6CowixB02CCSUq06VGaw_MrMNsB0LX4SJPvSm5PrF2WBGTgjbPGJDVGTZq-hoT-QLkZt6FFDaOnE_cTSgZOOQ4f1rMFo?authuser=1&fife=s16383" height="200" width="auto" /><br><br>AIの研究やってるとこ]]></description>
+      <description><![CDATA[<img src="https://mymaps.usercontent.google.com/hostedimage/m/*/3AKcrxGQusdb4AiNroaEFQ1pS22LnZsOHDzUle_apItD_xHYD97pRL30UOXuHnZCvtLDzMYFw7-ZADgqIN64vUKYwEmYXX7baeJI8DNsxOwDtpfGMDm0Cf5QXjw4Q5NDXhlNfQYjYiupV2AuuwJ-YMSxTgo1gG1ifvkfBiPdGk1vFo82CzZzj0kHpy0aN-tkrXTSvAw30xgz20JHr0NqAQPL7YVtP9a8C7ziwJquPHjPfdJI6QlKom5LujDcS2EY?authuser=0&fife=s16383" height="200" width="auto" /><br><br>AIの研究やってるとこ]]></description>
       <styleUrl>#icon-1899-0288D1</styleUrl>
       <ExtendedData>
         <Data name="gx_media_links">
-          <value><![CDATA[https://mymaps.usercontent.google.com/hostedimage/m/*/3ADbDBKsOql_4u1-ZDsroBQNo0lsHv6QDSewcYzEW6n7yLGne5zAaGwe-XQ-AOAficsPUYj4Rj9hFtODMGeMj78BK8cF_wHHTDPdC46xbPTQVmJiF_3fmYDW5CbKfUI0bVOfgy1wzH-jRS2JD8JsRHX-UwucM7fnrFYR6CowixB02CCSUq06VGaw_MrMNsB0LX4SJPvSm5PrF2WBGTgjbPGJDVGTZq-hoT-QLkZt6FFDaOnE_cTSgZOOQ4f1rMFo?authuser=1&fife=s16383]]></value>
+          <value><![CDATA[https://mymaps.usercontent.google.com/hostedimage/m/*/3AKcrxGQusdb4AiNroaEFQ1pS22LnZsOHDzUle_apItD_xHYD97pRL30UOXuHnZCvtLDzMYFw7-ZADgqIN64vUKYwEmYXX7baeJI8DNsxOwDtpfGMDm0Cf5QXjw4Q5NDXhlNfQYjYiupV2AuuwJ-YMSxTgo1gG1ifvkfBiPdGk1vFo82CzZzj0kHpy0aN-tkrXTSvAw30xgz20JHr0NqAQPL7YVtP9a8C7ziwJquPHjPfdJI6QlKom5LujDcS2EY?authuser=0&fife=s16383]]></value>
         </Data>
       </ExtendedData>
       <Point>
         <coordinates>
           131.4661863,34.1466512,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>平川河川公園</name>
+      <description>国際総合科学部一年生でBBQを行った。みんなの中を深めることができた！</description>
+      <styleUrl>#icon-1899-0288D1</styleUrl>
+      <Point>
+        <coordinates>
+          131.4644891,34.1585902,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>教育の丘</name>
+      <description>友達と夜景を見た</description>
+      <styleUrl>#icon-1899-0288D1</styleUrl>
+      <Point>
+        <coordinates>
+          131.4701034,34.1488153,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>CAFESSS with È PRONTO（カフェス ウィズ エ プロント）</name>
+      <description>大学で初めてできた友達と一番最初に行ったカフェです♡</description>
+      <styleUrl>#icon-1899-0288D1</styleUrl>
+      <Point>
+        <coordinates>
+          131.4559299,34.1647385,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>山水園</name>
+      <description>紅葉の時期に日帰り入浴に行くときれいな景色が楽しめて最高です✨</description>
+      <styleUrl>#icon-1899-0288D1</styleUrl>
+      <Point>
+        <coordinates>
+          131.4624796,34.1708961,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>フグサールーム</name>
+      <description><![CDATA[夜遅くまでそこに集まり、テスト勉強や試験対策を行なった。<br>大学での溜まり場で、空きコマはよくそこで時間を潰していた。]]></description>
+      <styleUrl>#icon-1899-0288D1</styleUrl>
+      <Point>
+        <coordinates>
+          131.4701034,34.1488153,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>維新みらいふスタジアム</name>
+      <description>レノファ山口の試合観戦</description>
+      <styleUrl>#icon-1899-0288D1</styleUrl>
+      <Point>
+        <coordinates>
+          131.4375008,34.1544514,0
+        </coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>Onn</name>
+      <description>受験前に宿泊した</description>
+      <styleUrl>#icon-1899-0288D1</styleUrl>
+      <Point>
+        <coordinates>
+          131.4554562,34.1641367,0
         </coordinates>
       </Point>
     </Placemark>
